@@ -16,7 +16,18 @@ class block_quiz_notification extends block_base{
     return $this->content;
     }
     public function cron(){
-         mtrace( "Hey, my cron script is running" );
+        $fp = fopen("my.txt", "wb");
+        
+        if($fp == FALSE){
+           echo 'Hey, i didnt write to file';    
+        }else {
+            fwrite($fp, "aa");
+            fclose($fp);
+             echo 'Hey, i wrote to file';
+            
+        }
+            
+         echo 'Hey, my cron script is running';
         
     }
 }
