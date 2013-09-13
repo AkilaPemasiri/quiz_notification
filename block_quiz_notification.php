@@ -7,6 +7,9 @@ class block_quiz_notification extends block_base {
     }
 
     public function get_content() {
+        global $USER, $CFG, $DB;
+        $user = $USER->username; //username of the current user
+        $prf = $CFG->prefix;  //perfix of the moodle tables
         if ($this->content !== null) {
             return $this->content;
         }
@@ -22,15 +25,40 @@ class block_quiz_notification extends block_base {
         $this->content->text .= '<form id="form1" name="form1" method="post" action="">';
         $this->content->text .= '<table width="120" border="0"><tr>';
         $this->content->text .= '<td width= "120"><input type = "display" name= "adress_label" value="' . get_string('view', 'block_quiz_notification') . '" readonly align="left"/></td></tr>';
-    $this->content->text .= '<tr><td width= "120"><input type = "display" name= "adress_label" value="' . get_string('view1', 'block_quiz_notification') . '"a align="left"/></td>';
+        $this->content->text .= '<tr><td width= "120"><input type = "display" name= "id_val" value="' . get_string('view1', 'block_quiz_notification') . '"a align="left"/></td>';
         $this->content->text .= ' </tr></table>';
-        
-    //     $this->content->text .=      </table>';
+
+        //     $this->content->text .=      </table>';
         $this->content->text .= '<tr>';
         $this->content->text .= '<td width="60"><input type="submit" name="ok" id="button" value="' . get_string('yes', 'block_quiz_notification') . '" a align="left"/></td>';
         $this->content->text .= '<td width="60"><input type="submit" name="no" id="button" value="' . get_string('no', 'block_quiz_notification') . '" a align="right"/></td>';
         $this->content->text .= '</tr> </table>';
         $this->content->text .= '</form>';
+///************************************************************///
+///************************************************************///
+///************************************************************///
+        //here onwards did not check the code//
+
+        if (isset($_POST['ok'])) {
+            $userid = $USER->id;
+            if ($DB->record_exists('quiz_notification_subs', array('id' => $userid))) { //Check whether the user has already subscribed
+                $this->content->text .= get_string('already_subscribed', 'block_quiz_notification');
+            }
+            else{
+                $facebook_id = $_POST[id_val];
+                if ($facebook_id =! "Enter the ID here"){
+                    
+                     $this->quiz_notification_subscribe($userid, $facebook_id);
+                }
+               else{
+                  $this->content->text .= get_string('Enter ID', 'block_quiz_notification'); 
+               }
+                
+            }
+        }
+        ///************************************************************///
+///************************************************************///
+///************************************************************///
     }
 
     public function cron() { // cron exe seems to be not working
@@ -41,38 +69,33 @@ class block_quiz_notification extends block_base {
         $instances = $DB->get_records_sql('select * from mdl_quiz');
         // $result = mysql_query("select quiz.id,course,name,timeopen from quiz where cou");
         foreach ($instances as $id) {
-            $fp = fopen("C:\Users\akila\Desktop\myTextttt.txt", "a");
+            $fp = fopen("C:\Users\akila\Desktop\myText.txt", "a");
 
 
             if ($fp == false) {
-                echo 'oh fp is false';
+                echo 'fp is not working';
             } else {
-                fwrite($fp, "akila");
+                fwrite($fp, time());
                 fclose($fp);
             }
 
 
             //testing
-        }
+        
         $starttime1 = $id->timeopen;
-        $starttime = $starttime1 - 19800;
+        $starttime = $starttime1 - 19800; // to adjust the system time
         $delay = $starttime - $now;
 
         $gap = $delay / 60;
         if (0 <= $gap && $gap <= 1) {
             $courseid = $id->course;
             create_quize_notification($courseid, $starttime);
-//                $courseid = $id->course;
-//                $result = mysql_query("select shortname from course where course.id = $courseid");
-//                if (!$result) {
-//                    die('Invalid query' . mysql_error());
-//                }
-//                echo $result;
         } else {
             $courseid = $id->course;
             create_quize_notification($courseid, $starttime);
 //********************************** this was done to testing purpose****************************** at the real time nothing within else*?
 //           se['shortname'];
+        }
         }
         //  echo $result->fullname;     $courseid = $id->course;
 //               
@@ -95,12 +118,16 @@ function create_quize_notification($courseid, $starttime) {
         die('Invalid query' . mysql_error());
     }
     $resultcourse = mysql_fetch_array($result);
-    echo $resultcourse['shortname'];
+    
     $datestamp = date("l jS \of F Y h:i:s A");
 
 
-    $message = 'There is a quiz in the course $courseid at $datestamp';
+    $message = 'There is a quiz in the course ';
     echo $message;
+   echo $resultcourse['shortname'];
+    echo ' at';
+    echo $datestamp;
+  //  echo $message;
 //                echo $courseid ;
 //                echo 'at';
 //                echo $datestamp;
@@ -121,7 +148,11 @@ function create_quize_notification($courseid, $starttime) {
 //    echo $result;
 //    echo 'End of jason';
 }
-
+//*this function is not tested**//
+function quiz_notification_subscribe($userid, $facebook_id){
+    
+    
+}
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.

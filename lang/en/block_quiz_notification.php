@@ -8,6 +8,8 @@ $string['yes'] = "Subscribe";
 $string['no'] = "Unsubscribe";
 $string['view']= "Enter the Facebook ID";
 $string['view1']= "Enter the ID here";
+$string['already_subscribed'] = "You have already subscribed";
+$string['Enter_ID'] = "Enter the Facebook ID please";
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
