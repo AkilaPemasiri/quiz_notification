@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/quiz_notification/db" VERSION="20130912" COMMENT="XMLDB file for Moodle blocks/quiz_notification"
+<XMLDB PATH="blocks/quiz_notification/db" VERSION="20130913" COMMENT="XMLDB file for Moodle blocks/quiz_notification"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="block_quiz_notification" COMMENT="default" NEXT="quiz_notification_subs">
-    </TABLE>
-    <TABLE NAME="quiz_notification_subs" COMMENT="Default comment for the table, please edit me" PREVIOUS="block_quiz_notification">
+    <TABLE NAME="block_quiz_notification" COMMENT="Default comment for block_quiz_notification, please edit me" NEXT="quiz_notification_subs">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="facebook_id"/>
-        <FIELD NAME="facebook_id" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="facebook id" PREVIOUS="id"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="quiz_notification_subs" COMMENT="users subscribed to the quiz notification service" PREVIOUS="block_quiz_notification">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="user_id"/>
+        <FIELD NAME="user_id" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="facebook_id"/>
+        <FIELD NAME="facebook_id" TYPE="text" NOTNULL="false" SEQUENCE="false" PREVIOUS="user_id"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
