@@ -49,7 +49,7 @@ class block_quiz_notification extends block_base {
                 if (($facebook_id != "Enter the ID here") && ($facebook_id != null)) {
 
                     $this->quiz_notification_subscribe($userid, $facebook_id);
-                    $this->content->text .= get_string('Enter_ID1', 'block_quiz_notification');
+                   // $this->content->text .= get_string('Enter_ID1', 'block_quiz_notification');
                 } else {
 
                     $this->content->text .= get_string('Enter_ID', 'block_quiz_notification');
@@ -153,10 +153,10 @@ class block_quiz_notification extends block_base {
     function quiz_notification_subscribe($userid, $facebook_id) {
         global $DB;
         $table = 'quiz_notification_subs';
-        if ($DB->record_exists($table, array('user_id' => $userid, 'facebook_id' => $facebook_id))) { // if is not working 
-       
-            return TRUE;
-        }
+//        if ($DB->record_exists($table, array('user_id' => $userid, 'facebook_id' => $facebook_id))) { // if is not working 
+//       
+//            return TRUE;
+//        }
 
         $sub = new stdClass();
         $sub->user_id = $userid;

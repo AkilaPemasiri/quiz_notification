@@ -6,11 +6,11 @@ $string['quiz_notification:myaddinstance'] = 'Add a new squiz notification block
 $string['wantservice'] = 'Do you want to subscribe for Quiz Notification Service?';
 $string['yes'] = "Subscribe";
 $string['no'] = "Unsubscribe";
-$string['view']= "Enter the Facebook ID";
-$string['view1']= "Enter the ID here";
+$string['view']= "Enter the FB mail address ";
+$string['view1']= "Enter the address here";
 $string['already_subscribed'] = "You have already subscribed";
-$string['Enter_ID'] = "Enter a valid Facebook ID please";
-$string['Enter_ID1'] = "Correct ID";
+$string['Enter_ID'] = "Enter a valid address please";
+//$string['Enter_ID1'] = "Correct ID";
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.

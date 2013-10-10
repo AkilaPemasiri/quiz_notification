@@ -25,8 +25,8 @@
  * it cannot do itself, it will tell you what you need to do.  The commands in
  * here will all be database-neutral, using the functions defined in DLL libraries.
  *
- * @package    mod_live
- * @copyright  2013 Sameera Nilupul
+ * @package    quiz_notification
+ * @copyright  2013 Akila Pemasiri
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
@@ -42,7 +42,7 @@ function xmldb_block_quiz_notification_upgrade($oldversion) {
     
     $dbman = $DB->get_manager(); 
     
-    if ($oldversion < 2013091154) {
+    if ($oldversion < 2012061701) {
 
         
         // Define field id to be added to quiz_notification_subs
@@ -71,7 +71,7 @@ function xmldb_block_quiz_notification_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
         // Another save point reached
-        upgrade_block_savepoint(true, 2013091154, 'quiz_notification');
+        upgrade_block_savepoint(true, 2012061701, 'quiz_notification');
     }
 
     return true;
