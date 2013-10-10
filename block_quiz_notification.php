@@ -1,6 +1,8 @@
+
+
 <?php
 
-class block_quiz_notification extends block_base {
+class block_quiz_notification extends block_base { // because this is a block
 
     public function init() {
         $this->title = get_string('quiz_notification', 'block_quiz_notification');
@@ -13,12 +15,11 @@ class block_quiz_notification extends block_base {
         if ($this->content !== null) {
             return $this->content;
         }
-
         if (empty($this->instance)) {
             $this->content = '';
             return $this->content;
         }
-
+        
         //content of the block which is to be displayed
         $this->content = new stdClass;
         $this->content->text = get_string('wantservice', 'block_quiz_notification');
@@ -34,140 +35,165 @@ class block_quiz_notification extends block_base {
         $this->content->text .= '<td width="60"><input type="submit" name="no" id="button" value="' . get_string('no', 'block_quiz_notification') . '" a align="right"/></td>';
         $this->content->text .= '</tr> </table>';
         $this->content->text .= '</form>';
-///************************************************************///
-///************************************************************///
-///************************************************************///
-        //here onwards did not check the code//
 
+// what happens when the ok is pressed
         if (isset($_POST['ok'])) {
-            $userid = $USER->id;
+            $userid = $USER->id;        // take the user_id, which is the id of the global variable user
             if ($DB->record_exists('quiz_notification_subs', array('id' => $userid))) { //Check whether the user has already subscribed
                 $this->content->text .= get_string('already_subscribed', 'block_quiz_notification');
             } else {
-                $facebook_id = $_POST['id_val'];
-                // echo $facebook_id;
-                if (($facebook_id != "Enter the ID here") && ($facebook_id != null)) {
-
-                    $this->quiz_notification_subscribe($userid, $facebook_id);
-                   // $this->content->text .= get_string('Enter_ID1', 'block_quiz_notification');
+                $facebook_id = $_POST['id_val'];            // take the facebook id
+                if (($facebook_id != "Enter the ID here") && ($facebook_id != null)) {      // check whether the entered id is correct
+                    $this->quiz_notification_subscribe($userid, $facebook_id);              // call the method to record the subscription
+                    $this->content->text .= get_string('subscribed', 'block_quiz_notification');
                 } else {
-
-                    $this->content->text .= get_string('Enter_ID', 'block_quiz_notification');
+                    $this->content->text .= get_string('Enter_ID', 'block_quiz_notification');  // of the entered password is not valid enter the correct password
                 }
             }
         }
-///************************************************************///
-///************************************************************///
-///************************************************************///
+        if (isset($_POST['no'])) {  //if someone doesn't want subcribe for the service
+            $userid = $USER->id;
+            $this->quiz_notification_unsubscribe($userid);
+            $this->content->text .= get_string('unsubscribed', 'block_quiz_notification');
+        }
     }
 
-    public function cron() { // cron exe seems to be not working
+
+    
+
+    public function cron() { // to call the checking process
         global $DB;
         $now = time();
-
-        //  echo $now;
-        $instances = $DB->get_records_sql('select * from mdl_quiz');
-        // $result = mysql_query("select quiz.id,course,name,timeopen from quiz where cou");
-        foreach ($instances as $id) {
-            $fp = fopen("C:\Users\akila\Desktop\myText.txt", "a");
-
-
+        $instances = $DB->get_records_sql('select * from mdl_quiz');        // get all the quizes
+        foreach ($instances as $id) {                                          // to check whether the cron is working... 
+            $fp = fopen("C:\Users\akila\Desktop\log.txt", "a");                 // this will act as a log file as well
             if ($fp == false) {
-                echo 'fp is not working';
+                
             } else {
-                fwrite($fp, time());
+                $datestamp = date("l jS \of F Y h:i:s A");
+                fwrite($fp, $datestamp);
                 fclose($fp);
             }
-
-
-            //testing
-
-            $starttime1 = $id->timeopen;
-            $starttime = $starttime1 - 19800; // to adjust the system time
+            $starttime = $id->timeopen;           // take the start time of quiz
             $delay = $starttime - $now;
 
-            $gap = $delay / 60;
-            if (0 <= $gap && $gap <= 1) {
+            $gap = $delay / 60;                     // take the gap (in minutes) between the current time and the quiz start time
+            if (0 <= $gap && $gap <= 1) {           //if it is less than 1 min
                 $courseid = $id->course;
-                create_quize_notification($courseid, $starttime);
+                create_quize_notification($courseid, $starttime);   // create the notification
             } else {
-                $courseid = $id->course;
-                create_quize_notification($courseid, $starttime);
-//********************************** this was done to testing purpose****************************** at the real time nothing within else*?
-//           se['shortname'];
+
+                $courseid = $id->course;                                // these two parts are added for the testing purpose
+                $this->create_quize_notification($courseid, $starttime);
             }
         }
-        //  echo $result->fullname;     $courseid = $id->course;
-//               
-//                echo $resultcourse['shortname'];
     }
 
-    //  echo $result->fullname;
-
-
-    function create_quize_notification($courseid, $starttime) {
-
-        $con = mysql_connect("localhost", "root", "abc123");
+    
+    
+    function connect_to_database() {                            // the function to establish the database connection
+        $con = mysql_connect("localhost", "root", "abc123");    // the details of the database 
         if (!$con) {
             die('Could not connect: ' . mysql_error());
+        } else {
+            //echo "connection established!!!!!!!1";
         }
         mysql_select_db("moodle", $con);
-
-        $result = mysql_query("select shortname from mdl_course where id = $courseid");
+        return $con;                                            // return the connection
+    }
+    
+    
+    
+    function create_quize_notification($courseid, $starttime) { // create the message 
+        ;
+             $this->connect_to_database();
+        $result = mysql_query("select shortname from mdl_course where id = $courseid");  
         if (!$result) {
             die('Invalid query' . mysql_error());
         }
         $resultcourse = mysql_fetch_array($result);
-
-        $datestamp = date("l jS \of F Y h:i:s A");
-
-
+        $datestamp = date("l jS \of F Y h:i:s A");      // get the current date stamp with the necessary format
         $message = 'There is a quiz in the course ';
-        echo $message;
-        echo $resultcourse['shortname'];
-        echo ' at';
-        echo $datestamp;
-        //  echo $message;
-//                echo $courseid ;
-//                echo 'at';
-//                echo $datestamp;
-//                $id = 'akila';
-//                $arr = array('id'=> $id,'message'=> $message );
-//                
-//                $url = 'http://localhost/intermediateFile.php';
-//   
-//    $ch=curl_init($url);
-//    $data_string = urlencode(json_encode($arr));
-//    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-//    curl_setopt($ch, CURLOPT_POSTFIELDS, array("message"=>$data_string));
-//
-//
-//    $result = curl_exec($ch);
-//    curl_close($ch);
-//
-//    echo $result;
-//    echo 'End of jason';
+        $message .= $resultcourse['shortname'];         // concatenate the relevent data for the message
+        $message .= ' on ';
+        $message .= $datestamp;
+        $this->select_subscribers($message, $courseid);    
     }
 
-//*this function is not tested**//
-    function quiz_notification_subscribe($userid, $facebook_id) {
+    
+    
+    function quiz_notification_subscribe($userid, $facebook_id) {       // insert the data of the subscribed users
         global $DB;
-        $table = 'quiz_notification_subs';
-//        if ($DB->record_exists($table, array('user_id' => $userid, 'facebook_id' => $facebook_id))) { // if is not working 
-//       
-//            return TRUE;
-//        }
-
+        //$table = 'quiz_notification_subs';    
         $sub = new stdClass();
         $sub->user_id = $userid;
         $sub->facebook_id = $facebook_id;
-        $result = $DB->insert_record('quiz_notification_subs', $sub);
+        $result = $DB->insert_record('quiz_notification_subs', $sub);   // insert the new tuple to the database table
+    }
+
+    
+    
+    function quiz_notification_unsubscribe($userid) {                   // delete entirs when a user is unsubs cribed
+        global $DB;
+        if ($DB->record_exists('quiz_notification_subs', array("userid" => $userid))) {
+            $DB->delete_records('quiz_notification_subs', array("userid" => $userid));  // delete the tuple
+            return true;
+        }
+        return true;
+    }
+
+    
+    
+    function select_subscribers($message, $course_id) {
+       
+        global $DB;
+        $context = context_course::instance($course_id);        // get the context of the course that is available at access API
+        $enrolled_users = get_enrolled_users($context);         // calling function that has been implemented by access API
+        $subscribed_users = $DB->get_records_sql('select * from mdl_quiz_notification_subs');
+        foreach ($enrolled_users as $enuser) {          // to send the message to each user who is enrolled
+            foreach ($subscribed_users as $subuser) {
+                if ($enuser->id == $subuser->user_id) {
+                    $this->send_message($message, $subuser->facebook_id);
+                }
+            }
+        }
+    }
+
+    
+    
+    function send_message($message, $facebook_id) {
+     
+        $address = $facebook_id;
+      //  $address .= '@facebook.com'; in the real code
+        $address .= '@gmail.com';
+        $to = $address;
+        $subject = 'Moodle Message';
+        $message = $message;
+        $headers = 'From: Moodle@Moodle.com' . "\r\n" .
+                'Reply-To: no reply' . "\r\n" .
+                'MIME-Version: 1.0' . "\r\n" .
+                'Content-type: text/html; charset=iso-8859-1' . "\r\n" .
+                'X-Mailer: PHP/' . phpversion();
+        mail($to, $subject, $message, $headers);
+        if (mail($to, $subject, $message, $headers)) {
+            echo "Email sent to ";
+            echo $facebook_id;
+        }
+        else
+            echo "Email sending failed";
+        echo $facebook_id;
+        echo $message;
+         $fp = fopen("C:\Users\akila\Desktop\messages.txt", "a");                 // this will act as a log file as well
+            if ($fp == false) {
+                
+            } else {
+                $datestamp = date("l jS \of F Y h:i:s A");
+                fwrite($fp, $facebook_id);
+                fwrite($fp, $message);
+                fwrite($fp, '\n');
+                fclose($fp);
+            }
     }
 
 }
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 ?>
